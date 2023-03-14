@@ -1,4 +1,9 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services
     .AddCommonServices()
@@ -16,7 +21,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.MapGet("/type/{level:int}", ([FromRoute] int level, [FromServices]IPokeGateway gateway) 
-    => gateway.GetPokémonAsync(level));
+app.MapGet("/type/{level:int}", ([AsParameters]Validated<GetPokémonTypeCollectionRequestModel> request, [FromServices]IPokeGateway gateway) 
+    => gateway.GetPokémonAsync(request.Value.Level));
 
 app.Run();

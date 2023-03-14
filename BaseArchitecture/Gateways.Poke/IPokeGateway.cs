@@ -49,7 +49,7 @@ public static class DependencyConfiguration
 internal class PokeGatewayMessageHandler : DelegatingHandler
 {
     protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
+        HttpRequestMessage request, CancellationToken cancellationToken)
     {
         request.Headers.Add("Accept", "application/json");
         return base.SendAsync(request, cancellationToken);

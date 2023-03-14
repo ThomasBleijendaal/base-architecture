@@ -23,8 +23,6 @@ public class LoggingHandler : DelegatingHandler
 
         var response = await base.SendAsync(request, cancellationToken);
 
-        var stop = Stopwatch.GetTimestamp();
-
         _logger.LogInformation("Request completed with {status} {reason} in {time} ms", (int)response.StatusCode, response.ReasonPhrase, Stopwatch.GetElapsedTime(start).TotalMilliseconds);
 
         return response;
