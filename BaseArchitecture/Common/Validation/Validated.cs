@@ -1,23 +1,31 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using FluentValidation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Common.Binding;
 
 namespace Common.Validation;
 
+// TODO: add support to statically set value so it can be validated
 public class Validated<T>
 {
     private ValidationResult Validation { get; }
+    private readonly T? _value;
 
-    private Validated(T value, ValidationResult validation)
+    public Validated()
     {
-        Value = value;
+
+    }
+
+    internal Validated(T? value, ValidationResult validation)
+    {
+        _value = value;
         Validation = validation;
     }
 
-    public T Value { get; }
+    /// <summary>
+    /// Returns the validated value, or an exception if not valid.
+    /// </summary>
+    /// <exception cref="ValidationException"></exception>
+    public T Value
+        => (IsValid ? _value : default) ?? throw new ValidationException(Validation.Errors);
+
     public bool IsValid => Validation.IsValid;
 
     public IDictionary<string, string[]> Errors =>
@@ -26,26 +34,28 @@ public class Validated<T>
             .GroupBy(x => x.PropertyName)
             .ToDictionary(x => x.Key, x => x.Select(e => e.ErrorMessage).ToArray());
 
-    public void Deconstruct(out bool isValid, out T value)
+    public void Deconstruct(out bool isValid, out T? value)
     {
         isValid = IsValid;
         value = Value;
     }
 
-    public static async ValueTask<Validated<T>> BindAsync(HttpContext context, ParameterInfo parameter)
+    public static ValueTask<Validated<T>?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
-        using var streamReader = new StreamReader(context.Request.Body);
+        var genericBinderType = parameter.GetCustomAttribute<BinderAttribute>()?.ModelBinderType ?? typeof(JsonModelBinder<>);
+        var binderType = genericBinderType.MakeGenericType(typeof(T));
 
-        var value = JsonSerializer.Deserialize<T>(await streamReader.ReadToEndAsync());
-        var validator = context.RequestServices.GetRequiredService<IValidator<T>>();
-
-        if (value is null)
+        if (context.RequestServices.GetRequiredService(binderType) is not IModelBinder<T> binder)
         {
-            throw new ArgumentException(parameter.Name);
+            return new ValueTask<Validated<T>?>(new Validated<T>(default, new ValidationResult
+            {
+                Errors =
+                {
+                    new ValidationFailure(parameter.Name, "Failed to get correct model binder")
+                }
+            }));
         }
 
-        var results = await validator.ValidateAsync(value);
-
-        return new Validated<T>(value, results);
+        return binder.BindAndValidateAsync(context, parameter);
     }
 }

@@ -2,5 +2,7 @@
 global using Common;
 global using Common.Validation;
 global using FluentValidation;
-global using Gateways.Poke;
+global using MediatR;
 global using Microsoft.AspNetCore.Mvc;
+global using Services;
+global using Services.Queries;

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\Gateways.Poke\Gateways.Poke.csproj" />
     <ProjectReference Include="..\Services\Services.csproj" />
   </ItemGroup>
 

@@ -20,6 +20,7 @@ NOTE: WIP
 Should handle
 - validation between client + api
 - validation for service
+- validation for options
 - gateways
 
 ## Caching

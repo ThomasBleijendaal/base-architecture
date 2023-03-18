@@ -8,5 +8,5 @@ public record PokémonTypeCollectionEntry(
     [property: JsonPropertyName("pokemon")] Pokémon Pokémon);
 
 public record PokémonTypeCollection(
-    int Id, 
+    int Id,
     [property: JsonPropertyName("pokemon")] IReadOnlyList<PokémonTypeCollectionEntry> Pokémons);
