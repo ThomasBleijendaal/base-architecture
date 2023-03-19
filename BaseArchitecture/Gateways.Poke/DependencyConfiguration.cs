@@ -1,8 +1,4 @@
-﻿using Common;
-using Gateways.Poke.Handlers;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Gateways.Poke;
+﻿namespace Gateways.Poke;
 
 public static class DependencyConfiguration
 {

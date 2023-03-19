@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-
-namespace Common;
+﻿namespace Common;
 
 public class LoggingHandler : DelegatingHandler
 {

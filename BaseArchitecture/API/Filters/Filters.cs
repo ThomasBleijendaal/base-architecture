@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc.Controllers;
-
-namespace API.Filters;
+﻿namespace API.Filters;
 
 public class ValidatedContentFilter : IActionFilter
 {
@@ -42,10 +38,4 @@ public class ValidatedContentFilter : IActionFilter
             StatusCode = StatusCodes.Status400BadRequest
         };
     }
-}
-
-[AttributeUsage(AttributeTargets.Method)]
-public class AllowInvalidModelAttribute : Attribute
-{
-
 }

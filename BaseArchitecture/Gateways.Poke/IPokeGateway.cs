@@ -1,6 +1,4 @@
-﻿using Gateways.Poke.Models;
-
-namespace Gateways.Poke;
+﻿namespace Gateways.Poke;
 
 public interface IPokeGateway
 {

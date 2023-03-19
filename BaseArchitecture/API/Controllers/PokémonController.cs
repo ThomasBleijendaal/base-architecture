@@ -20,7 +20,7 @@ public class PokémonController : Controller
     }
 
     /// <summary>
-    /// This method disables the model validation for Validated<>, allow it to handle the 
+    /// This method disables the model validation for Validated&lt;T&gt;, allow it to handle the 
     /// validation results in the action body, or ignoring it and trigger a ValidationException
     /// when accessing .Value without checking .IsValid first.
     /// </summary>

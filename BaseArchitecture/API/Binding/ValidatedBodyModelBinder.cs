@@ -1,8 +1,4 @@
-﻿using System.Text.Json;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-namespace API.Binding;
+﻿namespace API.Binding;
 
 public class ValidatedBodyModelBinder<T> : IModelBinder
 {
@@ -50,7 +46,7 @@ public class ValidatedBodyModelBinder<T> : IModelBinder
                 }
             });
         }
-        catch (Exception)
+        catch
         {
             return Validated<T>.CreateInvalid(new ValidationResult
             {

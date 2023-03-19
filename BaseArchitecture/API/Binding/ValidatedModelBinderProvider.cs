@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
-
-namespace API.Binding;
+﻿namespace API.Binding;
 
 public class ValidatedModelBinderProvider : IModelBinderProvider
 {

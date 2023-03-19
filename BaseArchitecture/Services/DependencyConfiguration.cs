@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Services.Handlers;
-
-namespace Services;
+﻿namespace Services;
 
 public static class DependencyConfiguration
 {
@@ -10,7 +7,7 @@ public static class DependencyConfiguration
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(typeof(DependencyConfiguration).Assembly);
-            config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(Validation<,>));
+            config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidatedRequestBehavior<,>));
         });
 
         services.AddPokeGateway();

@@ -1,7 +1,4 @@
-﻿using System.Net.Http.Json;
-using Gateways.Poke.Models;
-
-namespace Gateways.Poke;
+﻿namespace Gateways.Poke;
 
 internal class PokeGateway : IPokeGateway
 {
