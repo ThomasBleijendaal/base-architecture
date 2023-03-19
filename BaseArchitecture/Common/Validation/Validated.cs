@@ -1,19 +1,11 @@
-﻿using Common.Binding;
+﻿namespace Common.Validation;
 
-namespace Common.Validation;
-
-// TODO: add support to statically set value so it can be validated
-public class Validated<T>
+public class Validated<T> : IValidated
 {
     private ValidationResult Validation { get; }
     private readonly T? _value;
 
-    public Validated()
-    {
-
-    }
-
-    internal Validated(T? value, ValidationResult validation)
+    private Validated(T? value, ValidationResult validation)
     {
         _value = value;
         Validation = validation;
@@ -28,11 +20,7 @@ public class Validated<T>
 
     public bool IsValid => Validation.IsValid;
 
-    public IDictionary<string, string[]> Errors =>
-        Validation
-            .Errors
-            .GroupBy(x => x.PropertyName)
-            .ToDictionary(x => x.Key, x => x.Select(e => e.ErrorMessage).ToArray());
+    public IEnumerable<ValidationFailure> Errors => Validation.Errors;
 
     public void Deconstruct(out bool isValid, out T? value)
     {
@@ -40,22 +28,20 @@ public class Validated<T>
         value = Value;
     }
 
-    public static ValueTask<Validated<T>?> BindAsync(HttpContext context, ParameterInfo parameter)
+    public static async Task<Validated<T>> CreateAsync(IValidator<T> validator, T model)
     {
-        var genericBinderType = parameter.GetCustomAttribute<BinderAttribute>()?.ModelBinderType ?? typeof(JsonModelBinder<>);
-        var binderType = genericBinderType.MakeGenericType(typeof(T));
+        var results = await validator.ValidateAsync(model);
+        return new Validated<T>(model, results);
+    }
 
-        if (context.RequestServices.GetRequiredService(binderType) is not IModelBinder<T> binder)
-        {
-            return new ValueTask<Validated<T>?>(new Validated<T>(default, new ValidationResult
-            {
-                Errors =
-                {
-                    new ValidationFailure(parameter.Name, "Failed to get correct model binder")
-                }
-            }));
-        }
+    public static Task<Validated<T>> CreateAsync(IServiceProvider serviceProvider, T model)
+    {
+        var validator = serviceProvider.GetRequiredService<IValidator<T>>();
+        return CreateAsync(validator, model);
+    }
 
-        return binder.BindAndValidateAsync(context, parameter);
+    public static Validated<T> CreateInvalid(ValidationResult error)
+    {
+        return new Validated<T>(default, error);
     }
 }
