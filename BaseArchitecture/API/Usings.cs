@@ -4,6 +4,7 @@ global using API.Binding;
 global using API.Filters;
 global using API.Models;
 global using Common;
+global using Common.Extensions;
 global using Common.Validation;
 global using FluentValidation;
 global using FluentValidation.Results;

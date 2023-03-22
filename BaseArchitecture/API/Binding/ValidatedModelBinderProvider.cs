@@ -7,8 +7,16 @@ public class ValidatedModelBinderProvider : IModelBinderProvider
         if (context.Metadata.ModelType.IsGenericType
             && context.Metadata.ModelType.GetGenericTypeDefinition() == typeof(Validated<>))
         {
-            return (IModelBinder?)Activator.CreateInstance(typeof(ValidatedBodyModelBinder<>)
-                .MakeGenericType(context.Metadata.ModelType.GenericTypeArguments));
+            if (context.Metadata.BindingSource == BindingSource.Body)
+            {
+                return (IModelBinder?)Activator.CreateInstance(typeof(ValidatedBodyModelBinder<>)
+                    .MakeGenericType(context.Metadata.ModelType.GenericTypeArguments));
+            }
+            else if (context.Metadata.BindingSource == BindingSource.Query)
+            {
+                return (IModelBinder?)Activator.CreateInstance(typeof(ValidatedQueryModelBinder<>)
+                    .MakeGenericType(context.Metadata.ModelType.GenericTypeArguments));
+            }
         }
 
         return null;

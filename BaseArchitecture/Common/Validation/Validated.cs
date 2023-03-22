@@ -2,13 +2,13 @@
 
 public class Validated<T> : IValidated
 {
-    private ValidationResult Validation { get; }
     private readonly T? _value;
+    private readonly ValidationResult _validation;
 
     private Validated(T? value, ValidationResult validation)
     {
         _value = value;
-        Validation = validation;
+        _validation = validation;
     }
 
     /// <summary>
@@ -16,17 +16,13 @@ public class Validated<T> : IValidated
     /// </summary>
     /// <exception cref="ValidationException"></exception>
     public T Value
-        => (IsValid ? _value : default) ?? throw new ValidationException(Validation.Errors);
+        => (IsValid ? _value : default) ?? throw new ValidationException(_validation.Errors);
 
-    public bool IsValid => Validation.IsValid;
+    public bool IsValid => _validation.IsValid;
 
-    public IEnumerable<ValidationFailure> Errors => Validation.Errors;
+    public IEnumerable<ValidationFailure> Errors => _validation.Errors;
 
-    public void Deconstruct(out bool isValid, out T? value)
-    {
-        isValid = IsValid;
-        value = Value;
-    }
+    // TODO: move these to non-generic class?
 
     public static async Task<Validated<T>> CreateAsync(IValidator<T> validator, T model)
     {

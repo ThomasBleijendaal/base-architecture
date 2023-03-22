@@ -1,4 +1,5 @@
 ﻿global using Common.Results;
+global using FluentValidation;
 global using Gateways.Poke;
 global using Gateways.Poke.Models;
 global using MediatR;

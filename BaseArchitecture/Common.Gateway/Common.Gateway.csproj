@@ -7,12 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Polly.Contrib.Simmy" Version="0.3.0" />
-    <PackageReference Include="Polly.Extensions.Http" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0-preview.2.23128.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common.Gateway\Common.Gateway.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 

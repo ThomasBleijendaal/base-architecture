@@ -11,10 +11,20 @@ internal class PokeGateway : IPokeGateway
 
     public async Task<IReadOnlyList<Pokémon>?> GetPokémonAsync(int type)
     {
-        // TODO: how to handle failures here?
+        /*
+         * TODO:
+         * 
+         * V 1. 404 should be opt-in to accept
+         * V 2. Extensions should be made to produce Result<T>
+         * ? 3. Input validation
+         * V 4. Polly + Chaos
+         * 
+         */
 
-        var result = await _httpClient.GetFromJsonAsync<PokémonTypeCollection>($"type/{type}");
+        var request = new Request<PokémonTypeCollection>($"type/{type}").AllowNotFound();
 
-        return result?.Pokémons.Select(x => x.Pokémon).ToArray();
+        var result = await _httpClient.GetResultFromJsonAsync(request);
+
+        return result.Value?.Pokémons.Select(x => x.Pokémon).ToArray();
     }
 }

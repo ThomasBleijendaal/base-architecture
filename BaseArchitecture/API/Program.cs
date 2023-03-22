@@ -32,20 +32,4 @@ app.UseRouting();
 
 app.MapControllers();
 
-app.MapGet("/type",
-    async ([AsParameters] GetPokémonsRequest request, [FromServices] IMediator mediator)
-    =>
-    {
-        return Results.Ok(request.Level);
-
-        //if (!request.IsValid)
-        //{
-        //    return Results.BadRequest(request.Errors);
-        //}
-
-        //var result = await mediator.Send(new GetPokémonsQuery(request.Value.Level));
-
-        //return Results.Ok(result);
-    });
-
 app.Run();

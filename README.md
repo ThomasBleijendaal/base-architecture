@@ -19,7 +19,7 @@ NOTE: WIP
 
 Should handle
 - validation between client + api
-- validation for service
+- validation for service (mediator and classic services)
 - validation for options
 - gateways
 

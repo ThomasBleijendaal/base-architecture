@@ -1,4 +1,6 @@
-﻿namespace API.Controllers;
+﻿using API.Extensions;
+
+namespace API.Controllers;
 
 public class PokémonController : Controller
 {
@@ -10,13 +12,32 @@ public class PokémonController : Controller
         _mediator = mediator;
     }
 
+    [HttpGet("/type")]
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByQueryAsync(
+        [FromQuery] Validated<GetPokémonsRequestModel> request)
+    {
+        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
+
+        if (!result.IsSuccess)
+        {
+            return result.GetUnsuccessfulResult();
+        }
+
+        return Ok(result.Value);
+    }
+
     [HttpPost("/type")]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListAsync(
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByBodyAsync(
         [FromBody] Validated<GetPokémonsRequestModel> request)
     {
         var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
 
-        return Ok(result);
+        if (!result.IsSuccess)
+        {
+            return result.GetUnsuccessfulResult();
+        }
+
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -33,6 +54,11 @@ public class PokémonController : Controller
     {
         var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
 
-        return Ok(result);
+        if (!result.IsSuccess)
+        {
+            return result.GetUnsuccessfulResult();
+        }
+
+        return Ok(result.Value);
     }
 }

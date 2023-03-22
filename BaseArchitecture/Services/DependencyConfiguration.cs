@@ -12,6 +12,9 @@ public static class DependencyConfiguration
 
         services.AddPokeGateway();
 
+        services
+            .AddValidatorsFromAssemblyContaining<ValidatedRequestBehavior<IValidatedRequest, object>>();
+
         return services;
     }
 }

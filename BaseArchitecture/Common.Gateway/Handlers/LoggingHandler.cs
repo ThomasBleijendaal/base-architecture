@@ -1,4 +1,4 @@
-﻿namespace Common;
+﻿namespace Common.Gateway.Handlers;
 
 public class LoggingHandler : DelegatingHandler
 {
