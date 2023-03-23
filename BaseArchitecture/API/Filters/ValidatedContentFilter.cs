@@ -25,6 +25,7 @@ public class ValidatedContentFilter : IActionFilter
         }
     }
 
+    // TODO: map to model
     private static ObjectResult BadRequest(IEnumerable<ValidationFailure> failures)
     {
         var content = failures

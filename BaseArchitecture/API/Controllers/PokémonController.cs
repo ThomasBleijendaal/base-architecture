@@ -20,7 +20,7 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetUnsuccessfulResult();
+            return result.GetDefaultUnsuccessfulResult();
         }
 
         return Ok(result.Value);
@@ -34,14 +34,14 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetUnsuccessfulResult();
+            return result.GetDefaultUnsuccessfulResult();
         }
 
         return Ok(result.Value);
     }
 
     /// <summary>
-    /// This method disables the model validation for Validated&lt;T&gt;, allow it to handle the 
+    /// This method disables the model validation for Validated&lt;T&gt;, allow it to handle the
     /// validation results in the action body, or ignoring it and trigger a ValidationException
     /// when accessing .Value without checking .IsValid first.
     /// </summary>
@@ -56,7 +56,7 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetUnsuccessfulResult();
+            return result.GetDefaultUnsuccessfulResult();
         }
 
         return Ok(result.Value);

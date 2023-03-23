@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace API.Binding;
+﻿namespace API.Binding;
 
 // TODO: merge common stuff with the body binder
 public class ValidatedQueryModelBinder<T> : IModelBinder
@@ -26,11 +24,11 @@ public class ValidatedQueryModelBinder<T> : IModelBinder
             var value = bindingContext.HttpContext.Request.Query.ToObject<T>(JsonOptions)
                 ?? throw new ArgumentException(bindingContext.FieldName);
 
-            return await Validated<T>.CreateAsync(bindingContext.HttpContext.RequestServices, value);
+            return await Validated.CreateAsync<T>(bindingContext.HttpContext.RequestServices, value);
         }
         catch (JsonException ex) when (ex.InnerException is InvalidOperationException castException)
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {
@@ -40,7 +38,7 @@ public class ValidatedQueryModelBinder<T> : IModelBinder
         }
         catch (JsonException ex)
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {
@@ -50,7 +48,7 @@ public class ValidatedQueryModelBinder<T> : IModelBinder
         }
         catch
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {

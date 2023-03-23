@@ -1,6 +1,8 @@
-﻿using Polly;
+﻿using System.Net;
+using Polly;
 using Polly.Contrib.Simmy;
 using Polly.Contrib.Simmy.Latency;
+using Polly.Contrib.Simmy.Outcomes;
 using Polly.Extensions.Http;
 using Polly.Timeout;
 
@@ -10,6 +12,8 @@ public static class DependencyConfiguration
 {
     public static IServiceCollection AddPokeGateway(this IServiceCollection services)
     {
+        services.AddGatewayServices();
+
         services.AddTransient<PokeGatewayMessageHandler>();
 
         var retryPolicy = HttpPolicyExtensions
@@ -19,10 +23,14 @@ public static class DependencyConfiguration
 
         var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(2);
 
-        // TODO: add more monkeys 
         var timeoutMonkeyPolicy = MonkeyPolicy.InjectLatencyAsync<HttpResponseMessage>(with =>
         {
             with.Latency(TimeSpan.FromSeconds(3)).InjectionRate(0.5).Enabled(true);
+        });
+
+        var notFoundMonkeyPolicy = MonkeyPolicy.InjectResultAsync<HttpResponseMessage>(with =>
+        {
+            with.Result((ctx, token) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound))).InjectionRate(0.5).Enabled(true);
         });
 
         services.AddHttpClient<IPokeGateway, PokeGateway>(ConfigureClient)
@@ -30,7 +38,8 @@ public static class DependencyConfiguration
             .AddPolicyHandler(timeoutPolicy)
             .AddHttpMessageHandler<PokeGatewayMessageHandler>()
             .AddHttpMessageHandler<LoggingHandler>()
-            .AddPolicyHandler(timeoutMonkeyPolicy);
+            .AddPolicyHandler(timeoutMonkeyPolicy)
+            .AddPolicyHandler(notFoundMonkeyPolicy);
 
         return services;
     }

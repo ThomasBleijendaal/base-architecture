@@ -24,11 +24,11 @@ public class ValidatedBodyModelBinder<T> : IModelBinder
             var value = JsonSerializer.Deserialize<T>(json, JsonOptions)
                 ?? throw new ArgumentException(bindingContext.FieldName);
 
-            return await Validated<T>.CreateAsync(bindingContext.HttpContext.RequestServices, value);
+            return await Validated.CreateAsync(bindingContext.HttpContext.RequestServices, value);
         }
         catch (JsonException ex) when (ex.InnerException is InvalidOperationException castException)
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {
@@ -38,7 +38,7 @@ public class ValidatedBodyModelBinder<T> : IModelBinder
         }
         catch (JsonException ex)
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {
@@ -48,7 +48,7 @@ public class ValidatedBodyModelBinder<T> : IModelBinder
         }
         catch
         {
-            return Validated<T>.CreateInvalid(new ValidationResult
+            return Validated.CreateInvalid<T>(new ValidationResult
             {
                 Errors =
                 {

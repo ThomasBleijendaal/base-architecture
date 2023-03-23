@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Common.Gateway.Extensions;
+﻿namespace Common.Gateway.Extensions;
 
 // TODO: do a try catch to handle exceptions
 

@@ -1,5 +1,6 @@
 ﻿namespace Services.Behaviors;
 
+// TODO: move to common
 internal class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IValidatedRequest
     where TResponse : class
@@ -29,9 +30,11 @@ internal class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior
 
         TResponse? response;
 
+        // TODO: map validation errors to a response model
+
         try
         {
-            response = method?.Invoke(null, new object?[] { validationResult.Errors }) as TResponse;
+            response = method?.Invoke(null, new object?[] { validationResult.Errors.ToArray() }) as TResponse;
         }
         catch
         {

@@ -2,7 +2,7 @@
 
 public static class DependencyConfiguration
 {
-    public static IServiceCollection AddCommonServices(this IServiceCollection services)
+    public static IServiceCollection AddGatewayServices(this IServiceCollection services)
     {
         services.AddSingleton<LoggingHandler>();
 

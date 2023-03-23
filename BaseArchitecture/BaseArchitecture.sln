@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Servic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateways.Poke", "Gateways.Poke\Gateways.Poke.csproj", "{C2710B28-A1B6-42B6-B854-3B954872C291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Gateway", "Common.Gateway\Common.Gateway.csproj", "{DBBC9948-4EF9-4078-869F-BC1320FB98E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Gateway", "Common.Gateway\Common.Gateway.csproj", "{DBBC9948-4EF9-4078-869F-BC1320FB98E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{370DDC46-71FC-479D-83AF-F2CE3023F817}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{DBBC9948-4EF9-4078-869F-BC1320FB98E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBBC9948-4EF9-4078-869F-BC1320FB98E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBBC9948-4EF9-4078-869F-BC1320FB98E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

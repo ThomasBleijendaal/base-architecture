@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Common.Gateway.Requests;
+﻿namespace Common.Gateway.Requests;
 
 // TODO: this misses request bodies
 

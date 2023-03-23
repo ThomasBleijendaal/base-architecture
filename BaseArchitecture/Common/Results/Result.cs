@@ -5,8 +5,14 @@ public static class Result
     public static Result<T> Success<T>(T value)
         => new(value, ExecutionResult.Success);
 
-    public static Result<T> ValidationError<T>(IEnumerable<ValidationFailure> validationErrors)
-        => new(default, new ExecutionResult(false, true, null, validationErrors));
+    public static Result<T> ValidationError<T>(params ValidationFailure[] validationErrors)
+        => new(default, new ExecutionResult(false, false, true, null, validationErrors));
+
+    public static Result<T> TransientError<T>(params ResultFailure[] resultErrors)
+        => new(default, new ExecutionResult(false, true, false, resultErrors, null));
+
+    public static Result<T> ExecutionError<T>(params ResultFailure[] resultErrors)
+        => new(default, new ExecutionResult(false, false, false, resultErrors, null));
 }
 
 public record Result<T>
@@ -33,15 +39,8 @@ public record Result<T>
     public bool IsTransientError => _execution.IsTransientError;
 
     public bool IsValidationError => _execution.IsValidationError;
-}
 
-public record ExecutionResult(
-    bool IsTransientError,
-    bool IsValidationError,
-    IEnumerable<ResultFailure>? ResultErrors,
-    IEnumerable<ValidationFailure>? ValidationErrors)
-{
-    public static readonly ExecutionResult Success = new(false, false, null, null);
+    public IEnumerable<ResultFailure> ResultErrors => _execution.ResultErrors ?? Enumerable.Empty<ResultFailure>();
 
-    public bool IsValid => !IsTransientError && !IsValidationError;
+    public IEnumerable<ValidationFailure> ValidationErrors => _execution.ValidationErrors ?? Enumerable.Empty<ValidationFailure>();
 }

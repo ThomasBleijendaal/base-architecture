@@ -1,7 +1,6 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddCommonServices()
     .AddServices();
 
 builder.Services
