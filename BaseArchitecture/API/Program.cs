@@ -1,21 +1,9 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿// TODO: add function app
+// TODO: add service bus
 
-builder.Services
-    .AddServices();
+var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddSingleton<IObjectModelValidator, ValidatedObjectModelValidator>();
-
-builder.Services
-    .AddControllers(config =>
-    {
-        config.ModelBinderProviders.Insert(0, new ValidatedModelBinderProvider());
-
-        config.Filters.Add<ValidatedContentFilter>();
-    });
-
-builder.Services
-    .AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddApiServices();
 
 var app = builder.Build();
 

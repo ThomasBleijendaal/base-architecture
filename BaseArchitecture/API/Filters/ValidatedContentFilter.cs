@@ -10,9 +10,14 @@ public class ValidatedContentFilter : IActionFilter
             return;
         }
 
-        if (context.ActionArguments.Values.OfType<IValidated>().Any(x => !x.IsValid))
+        var validatedArguments = context.ActionArguments.Values
+            .OfType<IValidated>()
+            .Where(x => !x.IsValid)
+            .ToArray();
+
+        if (validatedArguments is { Length: > 0 } invalidArguments)
         {
-            context.Result = BadRequest(context.ActionArguments.Values.OfType<IValidated>().SelectMany(x => x.Errors));
+            context.Result = invalidArguments.GetDefaultResult();
         }
     }
 
@@ -21,22 +26,7 @@ public class ValidatedContentFilter : IActionFilter
         if (context.Exception is ValidationException validationException)
         {
             context.Exception = null;
-            context.Result = BadRequest(validationException.Errors);
+            context.Result = validationException.ValidationErrors.GetDefaultResult();
         }
-    }
-
-    // TODO: map to model
-    private static ObjectResult BadRequest(IEnumerable<ValidationFailure> failures)
-    {
-        var content = failures
-            .GroupBy(x => x.PropertyName)
-            .ToDictionary(
-                x => x.Key,
-                x => x.Select(x => x.ErrorMessage));
-
-        return new ObjectResult(content)
-        {
-            StatusCode = StatusCodes.Status400BadRequest
-        };
     }
 }

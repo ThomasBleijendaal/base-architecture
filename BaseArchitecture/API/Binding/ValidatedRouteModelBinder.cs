@@ -1,11 +1,14 @@
 ﻿namespace API.Binding;
 
-public class ValidatedBodyModelBinder<T> : IModelBinder
+// TODO: merge common stuff with the body binder
+public class ValidatedRouteModelBinder<T> : IModelBinder
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         AllowTrailingCommas = true,
-        PropertyNameCaseInsensitive = true
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNameCaseInsensitive = true,
+        NumberHandling = JsonNumberHandling.AllowReadingFromString
     };
 
     public async Task BindModelAsync(ModelBindingContext bindingContext)
@@ -16,12 +19,9 @@ public class ValidatedBodyModelBinder<T> : IModelBinder
 
     private static async Task<Validated<T>> ParseAndValidateModelAsync(ModelBindingContext bindingContext)
     {
-        using var streamReader = new StreamReader(bindingContext.HttpContext.Request.Body);
-        var json = await streamReader.ReadToEndAsync();
-
         try
         {
-            var value = JsonSerializer.Deserialize<T>(json, JsonOptions)
+            var value = bindingContext.HttpContext.Request.RouteValues.ToObject<T>(JsonOptions)
                 ?? throw new ArgumentException(bindingContext.FieldName);
 
             return await Validated.CreateAsync(bindingContext.HttpContext.RequestServices, value);

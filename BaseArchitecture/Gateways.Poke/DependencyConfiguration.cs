@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Polly;
 using Polly.Contrib.Simmy;
 using Polly.Contrib.Simmy.Latency;
@@ -19,19 +20,27 @@ public static class DependencyConfiguration
         var retryPolicy = HttpPolicyExtensions
           .HandleTransientHttpError()
           .Or<TimeoutRejectedException>()
-          .RetryAsync(3);
+          .RetryAsync(0);
 
-        var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(2);
+        var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(1);
 
-        var timeoutMonkeyPolicy = MonkeyPolicy.InjectLatencyAsync<HttpResponseMessage>(with =>
-        {
-            with.Latency(TimeSpan.FromSeconds(3)).InjectionRate(0.5).Enabled(true);
-        });
+        var timeoutMonkeyPolicy = MonkeyPolicy.InjectLatencyAsync<HttpResponseMessage>(with => with
+            .Latency(TimeSpan.FromSeconds(3))
+            .InjectionRate(0.05)
+            .Enabled(true));
 
-        var notFoundMonkeyPolicy = MonkeyPolicy.InjectResultAsync<HttpResponseMessage>(with =>
-        {
-            with.Result((ctx, token) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound))).InjectionRate(0.5).Enabled(true);
-        });
+        var notFoundMonkeyPolicy = MonkeyPolicy.InjectResultAsync<HttpResponseMessage>(with => with
+            .Result((ctx, token) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)))
+            .InjectionRate(0.05)
+            .Enabled(true));
+
+        var errorResponseMonkeyPolicy = MonkeyPolicy.InjectResultAsync<HttpResponseMessage>(with => with
+            .Result((ctx, token) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.InternalServerError)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(new ErrorResponse(1, "Failure")))
+            }))
+            .InjectionRate(0.25)
+            .Enabled(true));
 
         services.AddHttpClient<IPokeGateway, PokeGateway>(ConfigureClient)
             .AddPolicyHandler(retryPolicy)
@@ -39,7 +48,8 @@ public static class DependencyConfiguration
             .AddHttpMessageHandler<PokeGatewayMessageHandler>()
             .AddHttpMessageHandler<LoggingHandler>()
             .AddPolicyHandler(timeoutMonkeyPolicy)
-            .AddPolicyHandler(notFoundMonkeyPolicy);
+            .AddPolicyHandler(notFoundMonkeyPolicy)
+            .AddPolicyHandler(errorResponseMonkeyPolicy);
 
         return services;
     }

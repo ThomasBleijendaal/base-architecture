@@ -1,56 +1,81 @@
 ﻿namespace Common.Gateway.Extensions;
 
-// TODO: do a try catch to handle exceptions
-
 public static class HttpClientExtensions
 {
+    private readonly static JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
+    };
+
     public static async Task<Response> GetResultFromJsonAsync<T>(this HttpClient httpClient, Request request)
     {
-        var response = await httpClient.GetAsync(request.Uri);
+        try
+        {
+            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
 
-        return new Response(response.IsSuccessStatusCode || request.SuccessCodes.Contains(response.StatusCode));
+            return new Response(response.IsSuccessStatusCode || request.SuccessCodes.Contains(response.StatusCode));
+        }
+        catch
+        {
+            return new Response(false);
+        }
     }
 
     public static async Task<Response<T>> GetResultFromJsonAsync<T>(this HttpClient httpClient, Request<T> request)
     {
-        var response = await httpClient.GetAsync(request.Uri);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            return new Response<T>(request.SuccessCodes.Contains(response.StatusCode), default);
+            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new Response<T>(request.SuccessCodes.Contains(response.StatusCode), default);
+            }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var responseObject = JsonSerializer.Deserialize<T>(responseContent, JsonSerializerOptions);
+
+            return new Response<T>(true, responseObject);
         }
-
-        var responseContent = await response.Content.ReadAsStringAsync();
-
-        var responseObject = JsonSerializer.Deserialize<T>(responseContent);
-
-        return new Response<T>(true, responseObject);
+        catch
+        {
+            return new Response<T>(false, default);
+        }
     }
 
     public static async Task<Response<TSuccess, TError>> GetResultFromJsonAsync<TSuccess, TError>(this HttpClient httpClient, Request<TSuccess, TError> request)
     {
-        var response = await httpClient.GetAsync(request.Uri);
-
-        var responseContent = await response.Content.ReadAsStringAsync();
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            if (request.ErrorCodes.Contains(response.StatusCode))
-            {
-                var responseObject = JsonSerializer.Deserialize<TError>(responseContent);
+            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
 
-                return new Response<TSuccess, TError>(false, default, responseObject);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (request.ErrorCodes.Contains(response.StatusCode))
+                {
+                    var responseObject = JsonSerializer.Deserialize<TError>(responseContent, JsonSerializerOptions);
+
+                    return new Response<TSuccess, TError>(false, default, responseObject);
+                }
+                else
+                {
+                    return new Response<TSuccess, TError>(request.SuccessCodes.Contains(response.StatusCode), default, default);
+                }
             }
             else
             {
-                return new Response<TSuccess, TError>(request.SuccessCodes.Contains(response.StatusCode), default, default);
+                var responseObject = JsonSerializer.Deserialize<TSuccess>(responseContent, JsonSerializerOptions);
+
+                return new Response<TSuccess, TError>(true, responseObject, default);
             }
         }
-        else
+        catch
         {
-            var responseObject = JsonSerializer.Deserialize<TSuccess>(responseContent);
-
-            return new Response<TSuccess, TError>(true, responseObject, default);
+            return new Response<TSuccess, TError>(false, default, default);
         }
     }
 }

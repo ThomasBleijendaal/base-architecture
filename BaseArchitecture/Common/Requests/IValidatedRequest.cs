@@ -1,3 +1,3 @@
-﻿namespace Services.Queries;
+﻿namespace Common.Requests;
 
 public interface IValidatedRequest { }

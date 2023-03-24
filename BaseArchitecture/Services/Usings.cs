@@ -1,8 +1,9 @@
-﻿global using Common.Results;
+﻿global using Common.Behaviors;
+global using Common.Requests;
+global using Common.Results;
 global using FluentValidation;
 global using Gateways.Poke;
 global using Gateways.Poke.Models;
 global using MediatR;
 global using Microsoft.Extensions.DependencyInjection;
-global using Services.Behaviors;
 global using Services.Queries;

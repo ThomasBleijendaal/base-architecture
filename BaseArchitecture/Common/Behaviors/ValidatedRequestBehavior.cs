@@ -1,14 +1,16 @@
-﻿namespace Services.Behaviors;
+﻿using Common.Requests;
+using MediatR;
 
-// TODO: move to common
-internal class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+namespace Common.Behaviors;
+
+public class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IValidatedRequest
     where TResponse : class
 {
-    private readonly IValidator<TRequest> _validator;
+    private readonly FluentValidation.IValidator<TRequest> _validator;
 
     public ValidatedRequestBehavior(
-        IValidator<TRequest> validator)
+        FluentValidation.IValidator<TRequest> validator)
     {
         _validator = validator;
     }
@@ -24,23 +26,23 @@ internal class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior
             return await next.Invoke();
         }
 
+        var result = ValidationResult.Map(validationResult);
+
         var returnType = typeof(TResponse).GetGenericArguments();
 
         var method = typeof(Result).GetMethod(nameof(Result.ValidationError))?.MakeGenericMethod(returnType);
 
         TResponse? response;
 
-        // TODO: map validation errors to a response model
-
         try
         {
-            response = method?.Invoke(null, new object?[] { validationResult.Errors.ToArray() }) as TResponse;
+            response = method?.Invoke(null, new object?[] { result }) as TResponse;
         }
         catch
         {
             response = null;
         }
 
-        return response ?? throw new ValidationException("Failed to construct Result", validationResult.Errors);
+        return response ?? throw new ValidationException(result.ValidationErrors ?? Enumerable.Empty<ValidationError>());
     }
 }

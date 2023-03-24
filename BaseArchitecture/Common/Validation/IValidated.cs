@@ -3,5 +3,5 @@
 public interface IValidated
 {
     bool IsValid { get; }
-    IEnumerable<ValidationFailure> Errors { get; }
+    IEnumerable<ValidationError> Errors { get; }
 }

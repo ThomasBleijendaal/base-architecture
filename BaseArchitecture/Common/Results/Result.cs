@@ -5,13 +5,13 @@ public static class Result
     public static Result<T> Success<T>(T value)
         => new(value, ExecutionResult.Success);
 
-    public static Result<T> ValidationError<T>(params ValidationFailure[] validationErrors)
-        => new(default, new ExecutionResult(false, false, true, null, validationErrors));
+    public static Result<T> ValidationError<T>(ValidationResult validationResult)
+        => new(default, new ExecutionResult(false, false, !validationResult.IsValid, null, validationResult.ValidationErrors));
 
-    public static Result<T> TransientError<T>(params ResultFailure[] resultErrors)
+    public static Result<T> TransientError<T>(params ResultError[] resultErrors)
         => new(default, new ExecutionResult(false, true, false, resultErrors, null));
 
-    public static Result<T> ExecutionError<T>(params ResultFailure[] resultErrors)
+    public static Result<T> ExecutionError<T>(params ResultError[] resultErrors)
         => new(default, new ExecutionResult(false, false, false, resultErrors, null));
 }
 
@@ -26,13 +26,10 @@ public record Result<T>
         _execution = execution;
     }
 
-    // TODO: what should transient error be
-    // TODO: other errors?
-    // TODO: should this be InternalValidationException?
     public T? Value => _execution.IsValid ? _value
-        : _execution.IsTransientError ? throw new InvalidOperationException()
-        : _execution.IsValidationError ? throw new ValidationException(_execution.ValidationErrors)
-        : throw new InvalidOperationException();
+        : _execution.IsTransientError ? throw new TransientException(ResultErrors)
+        : _execution.IsValidationError ? throw new ValidationException(ValidationErrors)
+        : throw new ResultException(ResultErrors);
 
     public bool IsSuccess => _execution.IsValid;
 
@@ -40,7 +37,7 @@ public record Result<T>
 
     public bool IsValidationError => _execution.IsValidationError;
 
-    public IEnumerable<ResultFailure> ResultErrors => _execution.ResultErrors ?? Enumerable.Empty<ResultFailure>();
+    public IReadOnlyList<ResultError> ResultErrors => _execution.ResultErrors ?? Array.Empty<ResultError>();
 
-    public IEnumerable<ValidationFailure> ValidationErrors => _execution.ValidationErrors ?? Enumerable.Empty<ValidationFailure>();
+    public IReadOnlyList<ValidationError> ValidationErrors => _execution.ValidationErrors ?? Array.Empty<ValidationError>();
 }

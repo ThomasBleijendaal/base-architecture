@@ -4,6 +4,9 @@ namespace Common.Extensions;
 
 public static class DictionaryExtensions
 {
+    public static TObject? ToObject<TObject>(this IDictionary<string, object?> dictionary, JsonSerializerOptions options)
+        => ToObject<string, object?, TObject>(dictionary, options);
+
     public static TObject? ToObject<TObject>(this IEnumerable<KeyValuePair<string, StringValues>> dictionary, JsonSerializerOptions options)
         => ToObject<string, string, TObject>(dictionary.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())), options);
 

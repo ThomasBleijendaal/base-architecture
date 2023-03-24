@@ -2,22 +2,21 @@
 
 public class Validated
 {
-    public static async Task<Validated<T>> CreateAsync<T>(IValidator<T> validator, T model)
+    public static async Task<Validated<T>> CreateAsync<T>(FluentValidation.IValidator<T> validator, T model)
     {
-        var results = await validator.ValidateAsync(model);
-        return new Validated<T>(model, results);
+        var validationResults = await validator.ValidateAsync(model);
+
+        return new Validated<T>(model, ValidationResult.Map(validationResults));
     }
 
     public static Task<Validated<T>> CreateAsync<T>(IServiceProvider serviceProvider, T model)
     {
-        var validator = serviceProvider.GetRequiredService<IValidator<T>>();
+        var validator = serviceProvider.GetRequiredService<FluentValidation.IValidator<T>>();
         return CreateAsync(validator, model);
     }
 
     public static Validated<T> CreateInvalid<T>(ValidationResult error)
-    {
-        return new Validated<T>(default, error);
-    }
+        => new(default, error);
 }
 
 public class Validated<T> : IValidated
@@ -36,9 +35,10 @@ public class Validated<T> : IValidated
     /// </summary>
     /// <exception cref="ValidationException"></exception>
     public T Value
-        => (IsValid ? _value : default) ?? throw new ValidationException(_validation.Errors);
+        => (IsValid ? _value : default) ?? throw new ValidationException(Errors);
 
     public bool IsValid => _validation.IsValid;
 
-    public IEnumerable<ValidationFailure> Errors => _validation.Errors;
+    public IEnumerable<ValidationError> Errors
+        => _validation.ValidationErrors ?? Enumerable.Empty<ValidationError>();
 }

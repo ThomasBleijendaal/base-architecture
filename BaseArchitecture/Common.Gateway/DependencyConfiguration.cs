@@ -4,7 +4,7 @@ public static class DependencyConfiguration
 {
     public static IServiceCollection AddGatewayServices(this IServiceCollection services)
     {
-        services.AddSingleton<LoggingHandler>();
+        services.AddTransient<LoggingHandler>();
 
         return services;
     }

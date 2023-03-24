@@ -1,14 +1,15 @@
 ﻿global using System.Reflection;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using API;
 global using API.Binding;
+global using API.Extensions;
 global using API.Filters;
 global using API.Models;
+global using Common.Exceptions;
 global using Common.Extensions;
 global using Common.Results;
 global using Common.Validation;
-global using FluentValidation;
-global using FluentValidation.Results;
 global using MediatR;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;

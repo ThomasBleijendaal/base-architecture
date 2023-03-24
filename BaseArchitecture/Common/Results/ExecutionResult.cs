@@ -4,8 +4,8 @@ public record ExecutionResult(
     bool IsValid,
     bool IsTransientError,
     bool IsValidationError,
-    IEnumerable<ResultFailure>? ResultErrors,
-    IEnumerable<ValidationFailure>? ValidationErrors)
+    IReadOnlyList<ResultError>? ResultErrors,
+    IReadOnlyList<ValidationError>? ValidationErrors)
 {
     public static readonly ExecutionResult Success = new(true, false, false, null, null);
 }

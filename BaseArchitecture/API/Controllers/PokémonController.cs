@@ -1,6 +1,6 @@
-﻿using API.Extensions;
+﻿namespace API.Controllers;
 
-namespace API.Controllers;
+// TODO: map to response model
 
 public class PokémonController : Controller
 {
@@ -20,7 +20,7 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetDefaultUnsuccessfulResult();
+            return result.GetDefaultResult();
         }
 
         return Ok(result.Value);
@@ -34,7 +34,7 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetDefaultUnsuccessfulResult();
+            return result.GetDefaultResult();
         }
 
         return Ok(result.Value);
@@ -56,7 +56,26 @@ public class PokémonController : Controller
 
         if (!result.IsSuccess)
         {
-            return result.GetDefaultUnsuccessfulResult();
+            return result.GetDefaultResult();
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpGet("/pokemon/{name}")]
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetAsync(
+        [FromRoute] Validated<GetPokémonRequestModel> request)
+    {
+        var result = await _mediator.Send(new GetPokémonQuery(request.Value.Name));
+
+        if (!result.IsSuccess)
+        {
+            return result.GetDefaultResult();
+        }
+
+        if (result.Value == null)
+        {
+            return NotFound();
         }
 
         return Ok(result.Value);

@@ -1,10 +1,8 @@
 ﻿namespace Common.Exceptions;
 
-public class TransientException : Exception
+public class TransientException : ResultException
 {
-}
-
-public class ResultException : Exception
-{
-
+    public TransientException(IEnumerable<ResultError> resultErrors) : base(resultErrors)
+    {
+    }
 }

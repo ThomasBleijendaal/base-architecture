@@ -1,4 +1,6 @@
-﻿namespace API.Models;
+﻿using FluentValidation;
+
+namespace API.Models;
 
 public class GetPokémonsRequestModelValidator : AbstractValidator<GetPokémonsRequestModel>
 {

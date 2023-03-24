@@ -12,11 +12,11 @@ internal class GetPokémonsQueryHandler : IRequestHandler<GetPokémonsQuery, Res
 
     public async Task<Result<IReadOnlyList<Pokémon>?>> Handle(GetPokémonsQuery request, CancellationToken cancellationToken)
     {
-        var list = await _pokeGateway.GetPokémonAsync(request.Level);
+        var list = await _pokeGateway.GetPokémonsAsync(request.Level);
 
         if (list == null)
         {
-            return Result.ExecutionError<IReadOnlyList<Pokémon>?>(Errors.FailedToGetPokémon);
+            return Result.TransientError<IReadOnlyList<Pokémon>?>(Errors.FailedToGetPokémon);
         }
 
         return Result.Success(list)!;

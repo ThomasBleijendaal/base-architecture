@@ -24,37 +24,25 @@ public class ValidatedQueryModelBinder<T> : IModelBinder
             var value = bindingContext.HttpContext.Request.Query.ToObject<T>(JsonOptions)
                 ?? throw new ArgumentException(bindingContext.FieldName);
 
-            return await Validated.CreateAsync<T>(bindingContext.HttpContext.RequestServices, value);
+            return await Validated.CreateAsync(bindingContext.HttpContext.RequestServices, value);
         }
         catch (JsonException ex) when (ex.InnerException is InvalidOperationException castException)
         {
-            return Validated.CreateInvalid<T>(new ValidationResult
-            {
-                Errors =
-                {
-                    new ValidationFailure(ex.Path, castException.Message)
-                }
-            });
+            return CreateInvalid(ex.Path, castException.Message);
         }
         catch (JsonException ex)
         {
-            return Validated.CreateInvalid<T>(new ValidationResult
-            {
-                Errors =
-                {
-                    new ValidationFailure(ex.Path, ex.Message)
-                }
-            });
+            return CreateInvalid(ex.Path, ex.Message);
         }
         catch
         {
-            return Validated.CreateInvalid<T>(new ValidationResult
-            {
-                Errors =
-                {
-                    new ValidationFailure(bindingContext.FieldName, "Failed to parse model")
-                }
-            });
+            return CreateInvalid(bindingContext.FieldName, "Failed to parse model");
         }
     }
+
+    private static Validated<T> CreateInvalid(string? propertyName, string errorMessage)
+        => Validated.CreateInvalid<T>(
+            new ValidationResult(
+                false,
+                new[] { new ValidationError(propertyName, errorMessage) }));
 }
