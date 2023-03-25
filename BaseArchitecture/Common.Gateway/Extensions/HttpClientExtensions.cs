@@ -2,17 +2,11 @@
 
 public static class HttpClientExtensions
 {
-    private readonly static JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        AllowTrailingCommas = true
-    };
-
-    public static async Task<Response> GetResultFromJsonAsync<T>(this HttpClient httpClient, Request request)
+    public static async Task<Response> SendAsync<T>(this HttpClient httpClient, Request request)
     {
         try
         {
-            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
+            var response = await SendRequestAsync(httpClient, request);
 
             return new Response(response.IsSuccessStatusCode || request.SuccessCodes.Contains(response.StatusCode));
         }
@@ -25,11 +19,11 @@ public static class HttpClientExtensions
         }
     }
 
-    public static async Task<Response<T>> GetResultFromJsonAsync<T>(this HttpClient httpClient, Request<T> request)
+    public static async Task<Response<T>> SendAsync<T>(this HttpClient httpClient, Request<T> request, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         try
         {
-            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
+            var response = await SendRequestAsync(httpClient, request);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -38,7 +32,7 @@ public static class HttpClientExtensions
 
             var responseContent = await response.Content.ReadAsStringAsync();
 
-            var responseObject = JsonSerializer.Deserialize<T>(responseContent, JsonSerializerOptions);
+            var responseObject = JsonSerializer.Deserialize<T>(responseContent, jsonSerializerOptions);
 
             return new Response<T>(true, responseObject);
         }
@@ -51,11 +45,11 @@ public static class HttpClientExtensions
         }
     }
 
-    public static async Task<Response<TSuccess, TError>> GetResultFromJsonAsync<TSuccess, TError>(this HttpClient httpClient, Request<TSuccess, TError> request)
+    public static async Task<Response<TSuccess, TError>> SendAsync<TSuccess, TError>(this HttpClient httpClient, Request<TSuccess, TError> request, JsonSerializerOptions? jsonSerializerOptions = null)
     {
         try
         {
-            var response = await httpClient.GetAsync(request.GetUrlSafeUri());
+            var response = await SendRequestAsync(httpClient, request);
 
             var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -63,7 +57,7 @@ public static class HttpClientExtensions
             {
                 if (request.ErrorCodes.Contains(response.StatusCode))
                 {
-                    var responseObject = JsonSerializer.Deserialize<TError>(responseContent, JsonSerializerOptions);
+                    var responseObject = JsonSerializer.Deserialize<TError>(responseContent, jsonSerializerOptions);
 
                     return new Response<TSuccess, TError>(false, default, responseObject);
                 }
@@ -74,7 +68,7 @@ public static class HttpClientExtensions
             }
             else
             {
-                var responseObject = JsonSerializer.Deserialize<TSuccess>(responseContent, JsonSerializerOptions);
+                var responseObject = JsonSerializer.Deserialize<TSuccess>(responseContent, jsonSerializerOptions);
 
                 return new Response<TSuccess, TError>(true, responseObject, default);
             }
@@ -86,5 +80,17 @@ public static class HttpClientExtensions
                 Exception = ex
             };
         }
+    }
+
+    private static async Task<HttpResponseMessage> SendRequestAsync(HttpClient httpClient, IRequest request)
+    {
+        var requestMessage = new HttpRequestMessage(request.HttpMethod, request.GetUrlSafeUri());
+
+        if (request.Content != null)
+        {
+            requestMessage.Content = new StreamContent(request.Content.ToStream());
+        }
+
+        return await httpClient.SendAsync(requestMessage);
     }
 }

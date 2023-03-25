@@ -1,4 +1,5 @@
-﻿using Polly.CircuitBreaker;
+﻿using System.Text.Json;
+using Polly.CircuitBreaker;
 using Polly.Timeout;
 
 namespace Gateways.Poke;
@@ -6,6 +7,11 @@ namespace Gateways.Poke;
 internal class PokeGateway : IPokeGateway
 {
     private readonly HttpClient _httpClient;
+    private readonly static JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        AllowTrailingCommas = true
+    };
 
     public PokeGateway(HttpClient httpClient)
     {
@@ -18,7 +24,7 @@ internal class PokeGateway : IPokeGateway
             .ExpectSuccessBody<PokémonDetailsResponse>(HttpStatusCode.NotFound)
             .ExpectErrorBody<ErrorResponse>(HttpStatusCode.InternalServerError, HttpStatusCode.ServiceUnavailable);
 
-        var result = await _httpClient.GetResultFromJsonAsync(request);
+        var result = await _httpClient.SendAsync(request, JsonSerializerOptions);
 
         if (!result.Success)
         {
@@ -42,7 +48,7 @@ internal class PokeGateway : IPokeGateway
         var request = new Request<PokémonCollectionResponse>($"pokemon?limit=2000")
             .AllowNotFound();
 
-        var result = await _httpClient.GetResultFromJsonAsync(request);
+        var result = await _httpClient.SendAsync(request, JsonSerializerOptions);
 
         if (!result.Success)
         {
@@ -64,7 +70,7 @@ internal class PokeGateway : IPokeGateway
         var request = new Request<PokémonTypeCollectionResponse>($"type/{type}")
             .AllowNotFound();
 
-        var result = await _httpClient.GetResultFromJsonAsync(request);
+        var result = await _httpClient.SendAsync(request, JsonSerializerOptions);
 
         if (!result.Success)
         {
