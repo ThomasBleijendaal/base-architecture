@@ -1,6 +1,6 @@
 ﻿namespace Services.Handlers;
 
-internal class GetPokémonQueryHandler : IRequestHandler<GetPokémonQuery, Result<Pokémon?>>
+internal class GetPokémonQueryHandler : IRequestHandler<GetPokémonQuery, Result<PokémonDetails?>>
 {
     private readonly IPokeGateway _pokeGateway;
 
@@ -10,7 +10,7 @@ internal class GetPokémonQueryHandler : IRequestHandler<GetPokémonQuery, Resul
         _pokeGateway = pokeGateway;
     }
 
-    public async Task<Result<Pokémon?>> Handle(GetPokémonQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PokémonDetails?>> Handle(GetPokémonQuery request, CancellationToken cancellationToken)
     {
         return await _pokeGateway.GetPokémonAsync(request.Name);
     }

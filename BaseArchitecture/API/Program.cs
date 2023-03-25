@@ -2,6 +2,7 @@
 // TODO: add service bus
 // TODO: add repository / db
 // TODO: add documentation about what each layer does and where they fit in the architecture
+// TODO: add a POST request
 
 var builder = WebApplication.CreateBuilder(args);
 

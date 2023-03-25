@@ -63,7 +63,7 @@ public class PokémonController : Controller
     }
 
     [HttpGet("/pokemon/{name}")]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetAsync(
+    public async Task<ActionResult<IReadOnlyList<PokémonDetailsResponseModel>>> GetAsync(
         [FromRoute] Validated<GetPokémonRequestModel> request)
     {
         var result = await _mediator.Send(new GetPokémonQuery(request.Value.Name));
@@ -82,7 +82,7 @@ public class PokémonController : Controller
     }
 
     [HttpPost("/pokemon/search")]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> SearchAsync(
+    public async Task<ActionResult<IReadOnlyList<PokémonDetailsResponseModel>>> SearchAsync(
         [FromBody] Validated<SearchPokémonRequestModel> request)
     {
         var result = await _mediator.Send(new SearchPokémonQuery(request.Value.Name, request.Value.Height, request.Value.Weight));

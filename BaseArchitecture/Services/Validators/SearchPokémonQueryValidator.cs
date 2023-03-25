@@ -4,7 +4,7 @@ public class SearchPokémonQueryValidator : AbstractValidator<SearchPokémonQuer
 {
     public SearchPokémonQueryValidator()
     {
-        RuleFor(m => m.Name).MaximumLength(100);
+        RuleFor(m => m.Name).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Height).InclusiveBetween(0, 1000);
         RuleFor(x => x.Weight).InclusiveBetween(0, 1000);
     }

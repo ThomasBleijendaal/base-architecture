@@ -6,6 +6,14 @@ public static class DependencyConfiguration
     {
         services.AddTransient<LoggingHandler>();
 
+        // TODO: fix this
+
+        //services.AddStackExchangeRedisCache(options =>
+        //{
+        //    options.Configuration = "localhost";
+        //    options.InstanceName = "SampleInstance";
+        //});
+
         return services;
     }
 }

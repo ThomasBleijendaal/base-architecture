@@ -1,3 +1,3 @@
 ﻿namespace Services.Queries;
 
-public record GetPokémonQuery(string Name) : ValidatedRequest<Pokémon?>;
+public record GetPokémonQuery(string Name) : ValidatedRequest<PokémonDetails?>;

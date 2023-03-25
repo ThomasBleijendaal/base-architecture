@@ -12,10 +12,10 @@ internal class PokeGateway : IPokeGateway
         _httpClient = httpClient;
     }
 
-    public async Task<Result<Pokémon?>> GetPokémonAsync(string name)
+    public async Task<Result<PokémonDetails?>> GetPokémonAsync(string name)
     {
         var request = new Request($"pokemon/{name}")
-            .ExpectSuccessBody<PokémonResponse>(HttpStatusCode.NotFound)
+            .ExpectSuccessBody<PokémonDetailsResponse>(HttpStatusCode.NotFound)
             .ExpectErrorBody<ErrorResponse>(HttpStatusCode.InternalServerError, HttpStatusCode.ServiceUnavailable);
 
         var result = await _httpClient.GetResultFromJsonAsync(request);
@@ -24,11 +24,11 @@ internal class PokeGateway : IPokeGateway
         {
             if (result.ErrorValue != null)
             {
-                return Result.ExecutionError<Pokémon?>(Errors.GatewayError(result.ErrorValue.Code, result.ErrorValue.Message));
+                return Result.ExecutionError<PokémonDetails?>(Errors.GatewayError(result.ErrorValue.Code, result.ErrorValue.Message));
             }
             else
             {
-                return GetGenericGatewayResult<Pokémon?>(result);
+                return GetGenericGatewayResult<PokémonDetails?>(result);
             }
         }
 
@@ -95,10 +95,15 @@ internal class PokeGateway : IPokeGateway
         }
     }
 
-    private static Pokémon Map(PokémonResponse result)
+    private static PokémonDetails Map(PokémonDetailsResponse result)
         => new(
             result.Id,
             result.Name,
             result.Weight,
             result.Height);
+
+    private static Pokémon Map(PokémonResponse result)
+        => new(
+            int.Parse(result.Url?.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)[^1] ?? "0"),
+            result.Name);
 }
