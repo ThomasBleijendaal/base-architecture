@@ -16,7 +16,7 @@ public class PokémonController : Controller
     public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByQueryAsync(
         [FromQuery] Validated<GetPokémonsRequestModel> request)
     {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
+        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
 
         if (!result.IsSuccess)
         {
@@ -30,7 +30,7 @@ public class PokémonController : Controller
     public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByBodyAsync(
         [FromBody] Validated<GetPokémonsRequestModel> request)
     {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
+        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
 
         if (!result.IsSuccess)
         {
@@ -52,7 +52,7 @@ public class PokémonController : Controller
     public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListDangerouslyAsync(
         [FromBody] Validated<GetPokémonsRequestModel> request)
     {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Level));
+        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
 
         if (!result.IsSuccess)
         {
@@ -76,6 +76,20 @@ public class PokémonController : Controller
         if (result.Value == null)
         {
             return NotFound();
+        }
+
+        return Ok(result.Value);
+    }
+
+    [HttpPost("/pokemon/search")]
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> SearchAsync(
+        [FromBody] Validated<SearchPokémonRequestModel> request)
+    {
+        var result = await _mediator.Send(new SearchPokémonQuery(request.Value.Name, request.Value.Height, request.Value.Weight));
+
+        if (!result.IsSuccess)
+        {
+            return result.GetDefaultResult();
         }
 
         return Ok(result.Value);

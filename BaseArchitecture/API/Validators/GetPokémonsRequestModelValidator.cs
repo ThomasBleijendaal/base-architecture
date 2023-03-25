@@ -6,6 +6,6 @@ public class GetPokémonsRequestModelValidator : AbstractValidator<GetPokémonsR
 {
     public GetPokémonsRequestModelValidator()
     {
-        RuleFor(m => m.Level).GreaterThanOrEqualTo(0).LessThanOrEqualTo(10);
+        RuleFor(m => m.Type).GreaterThanOrEqualTo(0).LessThanOrEqualTo(10);
     }
 }

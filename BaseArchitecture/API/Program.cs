@@ -1,5 +1,7 @@
 ﻿// TODO: add function app
 // TODO: add service bus
+// TODO: add repository / db
+// TODO: add documentation about what each layer does and where they fit in the architecture
 
 var builder = WebApplication.CreateBuilder(args);
 

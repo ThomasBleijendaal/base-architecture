@@ -12,13 +12,6 @@ internal class GetPokémonQueryHandler : IRequestHandler<GetPokémonQuery, Resul
 
     public async Task<Result<Pokémon?>> Handle(GetPokémonQuery request, CancellationToken cancellationToken)
     {
-        var response = await _pokeGateway.GetPokémonAsync(request.Name);
-
-        if (response == null)
-        {
-            return Result.TransientError<Pokémon?>(Errors.FailedToGetPokémon);
-        }
-
-        return Result.Success(response)!;
+        return await _pokeGateway.GetPokémonAsync(request.Name);
     }
 }

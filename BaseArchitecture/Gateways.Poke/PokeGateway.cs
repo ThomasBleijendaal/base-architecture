@@ -1,63 +1,104 @@
-﻿using System.Net;
-using Microsoft.Extensions.Logging;
+﻿using Polly.CircuitBreaker;
+using Polly.Timeout;
 
 namespace Gateways.Poke;
-
-// TODO: the responses from gateway hide the reason why they fail which makes the query handler cannot
-// see why stuff is failing
 
 internal class PokeGateway : IPokeGateway
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<PokeGateway> _logger;
 
-    public PokeGateway(
-        HttpClient httpClient,
-        ILogger<PokeGateway> logger)
+    public PokeGateway(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _logger = logger;
     }
 
-    public async Task<Pokémon?> GetPokémonAsync(string name)
+    public async Task<Result<Pokémon?>> GetPokémonAsync(string name)
     {
         var request = new Request($"pokemon/{name}")
             .ExpectSuccessBody<PokémonResponse>(HttpStatusCode.NotFound)
-            .ExpectErrorBody<ErrorResponse>(HttpStatusCode.InternalServerError);
+            .ExpectErrorBody<ErrorResponse>(HttpStatusCode.InternalServerError, HttpStatusCode.ServiceUnavailable);
 
         var result = await _httpClient.GetResultFromJsonAsync(request);
 
-        if (!result.Success || result.SuccessValue == null)
+        if (!result.Success)
         {
-            _logger.LogError("{code}: {message}", result.ErrorValue?.Code ?? -1, result.ErrorValue?.Message ?? "some error");
-            return null;
+            if (result.ErrorValue != null)
+            {
+                return Result.ExecutionError<Pokémon?>(Errors.GatewayError(result.ErrorValue.Code, result.ErrorValue.Message));
+            }
+            else
+            {
+                return GetGenericGatewayResult<Pokémon?>(result);
+            }
         }
 
-        return new Pokémon(
-            result.SuccessValue.Id,
-            result.SuccessValue.Name,
-            result.SuccessValue.Weight,
-            result.SuccessValue.Height);
+        return Result.Success(result.SuccessValue == null
+            ? null
+            : Map(result.SuccessValue));
     }
 
-    public async Task<IReadOnlyList<Pokémon>?> GetPokémonsAsync(int type)
+    public async Task<Result<IReadOnlyList<Pokémon>?>> GetPokémonsAsync()
+    {
+        var request = new Request<PokémonCollectionResponse>($"pokemon?limit=2000")
+            .AllowNotFound();
+
+        var result = await _httpClient.GetResultFromJsonAsync(request);
+
+        if (!result.Success)
+        {
+            return GetGenericGatewayResult<IReadOnlyList<Pokémon>?>(result);
+        }
+
+        if (result.SuccessValue == null)
+        {
+            return Result.Success<IReadOnlyList<Pokémon>?>(Array.Empty<Pokémon>());
+        }
+
+        return Result.Success<IReadOnlyList<Pokémon>?>(result.SuccessValue.Pokémons
+            .Select(Map)
+            .ToArray())!;
+    }
+
+    public async Task<Result<IReadOnlyList<Pokémon>?>> GetPokémonsAsync(int type)
     {
         var request = new Request<PokémonTypeCollectionResponse>($"type/{type}")
             .AllowNotFound();
 
         var result = await _httpClient.GetResultFromJsonAsync(request);
 
-        if (!result.Success || result.Value == null)
+        if (!result.Success)
         {
-            return null;
+            return GetGenericGatewayResult<IReadOnlyList<Pokémon>?>(result);
         }
 
-        return result.Value.Pokémons
-            .Select(x => new Pokémon(
-                x.Pokémon.Id,
-                x.Pokémon.Name,
-                x.Pokémon.Weight,
-                x.Pokémon.Height))
-            .ToArray();
+        if (result.SuccessValue == null)
+        {
+            return Result.ExecutionError<IReadOnlyList<Pokémon>?>(Errors.UnknownType);
+        }
+
+        return Result.Success<IReadOnlyList<Pokémon>?>(result.SuccessValue.Pokémons
+            .Select(x => Map(x.Pokémon))
+            .ToArray())!;
     }
+
+    private static Result<T> GetGenericGatewayResult<T>(IResponse result)
+    {
+        if ((result.Exception is HttpRequestException http && http.StatusCode == HttpStatusCode.ServiceUnavailable) ||
+            result.Exception is BrokenCircuitException ||
+            result.Exception is TimeoutRejectedException)
+        {
+            return Result.TransientError<T>(Errors.TemporaryGatewayException);
+        }
+        else
+        {
+            return Result.ExecutionError<T>(Errors.GatewayException);
+        }
+    }
+
+    private static Pokémon Map(PokémonResponse result)
+        => new(
+            result.Id,
+            result.Name,
+            result.Weight,
+            result.Height);
 }

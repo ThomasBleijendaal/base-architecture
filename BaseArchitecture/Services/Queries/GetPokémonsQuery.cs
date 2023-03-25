@@ -1,3 +1,3 @@
 ﻿namespace Services.Queries;
 
-public record GetPokémonsQuery(int Level) : ValidatedRequest<IReadOnlyList<Pokémon>?>;
+public record GetPokémonsQuery(int Type) : ValidatedRequest<IReadOnlyList<Pokémon>?>;

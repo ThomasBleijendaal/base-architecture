@@ -16,9 +16,12 @@ public static class HttpClientExtensions
 
             return new Response(response.IsSuccessStatusCode || request.SuccessCodes.Contains(response.StatusCode));
         }
-        catch
+        catch (Exception ex)
         {
-            return new Response(false);
+            return new Response(false)
+            {
+                Exception = ex
+            };
         }
     }
 
@@ -39,9 +42,12 @@ public static class HttpClientExtensions
 
             return new Response<T>(true, responseObject);
         }
-        catch
+        catch (Exception ex)
         {
-            return new Response<T>(false, default);
+            return new Response<T>(false, default)
+            {
+                Exception = ex
+            };
         }
     }
 
@@ -73,9 +79,12 @@ public static class HttpClientExtensions
                 return new Response<TSuccess, TError>(true, responseObject, default);
             }
         }
-        catch
+        catch (Exception ex)
         {
-            return new Response<TSuccess, TError>(false, default, default);
+            return new Response<TSuccess, TError>(false, default, default)
+            {
+                Exception = ex
+            };
         }
     }
 }

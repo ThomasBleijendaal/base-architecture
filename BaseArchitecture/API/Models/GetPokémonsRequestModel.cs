@@ -1,2 +1,2 @@
 ﻿namespace API.Models;
-public record GetPokémonsRequestModel(int Level);
+public record GetPokémonsRequestModel(int Type);
