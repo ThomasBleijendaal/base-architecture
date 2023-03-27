@@ -1,6 +1,7 @@
-﻿namespace API.Controllers;
+﻿using System.Diagnostics.CodeAnalysis;
+using Gateways.Poke.Models;
 
-// TODO: map to response model
+namespace API.Controllers;
 
 public class PokémonController : Controller
 {
@@ -23,7 +24,7 @@ public class PokémonController : Controller
             return result.GetDefaultResult();
         }
 
-        return Ok(result.Value);
+        return Ok(Map(result.Value));
     }
 
     [HttpPost("/type")]
@@ -37,7 +38,7 @@ public class PokémonController : Controller
             return result.GetDefaultResult();
         }
 
-        return Ok(result.Value);
+        return Ok(Map(result.Value));
     }
 
     /// <summary>
@@ -59,7 +60,7 @@ public class PokémonController : Controller
             return result.GetDefaultResult();
         }
 
-        return Ok(result.Value);
+        return Ok(Map(result.Value));
     }
 
     [HttpGet("/pokemon/{name}")]
@@ -78,7 +79,7 @@ public class PokémonController : Controller
             return NotFound();
         }
 
-        return Ok(result.Value);
+        return Ok(Map(result.Value));
     }
 
     [HttpPost("/pokemon/search")]
@@ -92,6 +93,20 @@ public class PokémonController : Controller
             return result.GetDefaultResult();
         }
 
-        return Ok(result.Value);
+        return Ok(Map(result.Value));
     }
+
+    private IReadOnlyList<PokémonResponseModel>? Map(IReadOnlyList<Pokémon>? pokémons)
+        => pokémons?.Select(x => Map(x)).ToList();
+
+    private IReadOnlyList<PokémonDetailsResponseModel>? Map(IReadOnlyList<PokémonDetails>? pokémons)
+        => pokémons?.Select(x => Map(x)).ToList();
+
+    [return: NotNullIfNotNull("pokémon")]
+    private PokémonResponseModel? Map(Pokémon? pokémon)
+        => pokémon == null ? null : new(pokémon.Id, pokémon.Name);
+
+    [return: NotNullIfNotNull("pokémon")]
+    private PokémonDetailsResponseModel? Map(PokémonDetails? pokémon)
+        => pokémon == null ? null : new(pokémon.Id, pokémon.Name, pokémon.Weight, pokémon.Height);
 }

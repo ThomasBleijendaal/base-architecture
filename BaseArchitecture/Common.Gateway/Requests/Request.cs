@@ -48,7 +48,7 @@ public record Request<TSuccess> : Request
     {
     }
 
-    public new Request<TSuccess> AllowNotFound() { SuccessCodes.Add(HttpStatusCode.NotFound); return this; }
+    public new Request<TSuccess> AllowNotFound() { base.AllowNotFound(); return this; }
 
     public Request<TSuccess, TError> ExpectErrorBody<TError>(params HttpStatusCode[] errorCodes)
     {
@@ -69,7 +69,7 @@ public record Request<TSuccess, TError> : Request<TSuccess>
     {
     }
 
-    public new Request<TSuccess, TError> AllowNotFound() { SuccessCodes.Add(HttpStatusCode.NotFound); return this; }
+    public new Request<TSuccess, TError> AllowNotFound() { base.AllowNotFound(); return this; }
 
     public List<HttpStatusCode> ErrorCodes { get; private set; } = new();
 

@@ -27,9 +27,6 @@ public static class DependencyConfiguration
 
         var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(1);
 
-        // TODO: find out how to line this up
-        // var cachePolicy = Policy.CacheAsync<HttpResponseMessage>();
-
         var timeoutMonkeyPolicy = MonkeyPolicy.InjectLatencyAsync<HttpResponseMessage>(with => with
             .Latency(TimeSpan.FromSeconds(2))
             .InjectionRate(0.05)
@@ -68,7 +65,7 @@ public static class DependencyConfiguration
             .AddPolicyHandler(timeoutPolicy)
             .AddPolicyHandler(breakerPolicy)
             .AddHttpMessageHandler<PokeGatewayMessageHandler>();
-        //.AddPolicyHandler(monkeyPolicies);
+        // .AddPolicyHandler(monkeyPolicies);
 
         return services;
     }

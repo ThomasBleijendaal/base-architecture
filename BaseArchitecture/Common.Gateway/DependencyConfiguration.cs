@@ -6,13 +6,13 @@ public static class DependencyConfiguration
     {
         services.AddTransient<LoggingHandler>();
 
-        // TODO: fix this
+        // TODO: move this to Common.Caching + some helper with that does stale cache handling
 
-        //services.AddStackExchangeRedisCache(options =>
-        //{
-        //    options.Configuration = "localhost";
-        //    options.InstanceName = "SampleInstance";
-        //});
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = "localhost";
+            options.InstanceName = "SampleInstance";
+        });
 
         return services;
     }

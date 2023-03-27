@@ -1,7 +1,6 @@
 ﻿namespace API.Binding;
 
-// TODO: merge common stuff with the body binder
-public class ValidatedQueryModelBinder<T> : IModelBinder
+public class ValidatedQueryModelBinder<T> : ValidatedModelBinderBase<T>, IModelBinder
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -39,10 +38,4 @@ public class ValidatedQueryModelBinder<T> : IModelBinder
             return CreateInvalid(bindingContext.FieldName, "Failed to parse model");
         }
     }
-
-    private static Validated<T> CreateInvalid(string? propertyName, string errorMessage)
-        => Validated.CreateInvalid<T>(
-            new ValidationResult(
-                false,
-                new[] { new ValidationError(propertyName, errorMessage) }));
 }
