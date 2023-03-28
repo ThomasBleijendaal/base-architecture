@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateways.Poke", "Gateways.P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Gateway", "Common.Gateway\Common.Gateway.csproj", "{DBBC9948-4EF9-4078-869F-BC1320FB98E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{370DDC46-71FC-479D-83AF-F2CE3023F817}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{370DDC46-71FC-479D-83AF-F2CE3023F817}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.PokeDb", "Infrastructure.PokeDb\Infrastructure.PokeDb.csproj", "{6C8A1F52-7B52-4082-BE12-451DAD911691}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{370DDC46-71FC-479D-83AF-F2CE3023F817}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C8A1F52-7B52-4082-BE12-451DAD911691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C8A1F52-7B52-4082-BE12-451DAD911691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C8A1F52-7B52-4082-BE12-451DAD911691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C8A1F52-7B52-4082-BE12-451DAD911691}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
