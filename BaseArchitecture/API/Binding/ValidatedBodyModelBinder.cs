@@ -26,13 +26,9 @@ public class ValidatedBodyModelBinder<T> : ValidatedModelBinderBase<T>, IModelBi
 
             return await Validated.CreateAsync(bindingContext.HttpContext.RequestServices, value);
         }
-        catch (JsonException ex) when (ex.InnerException is InvalidOperationException castException)
-        {
-            return CreateInvalid(ex.Path, castException.Message);
-        }
         catch (JsonException ex)
         {
-            return CreateInvalid(ex.Path, ex.Message);
+            return CreateInvalid(ex.Path, "Invalid type");
         }
         catch
         {

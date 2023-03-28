@@ -6,4 +6,6 @@ global using Gateways.Poke;
 global using Gateways.Poke.Models;
 global using MediatR;
 global using Microsoft.Extensions.DependencyInjection;
+global using Services.Commands;
+global using Services.Extensions;
 global using Services.Queries;

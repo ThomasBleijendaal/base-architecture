@@ -1,3 +1,3 @@
 ﻿namespace Gateways.Poke.Models;
 
-internal record PokémonResponse(string Url, string Name);
+public record PokémonResponse(string Url, string Name);

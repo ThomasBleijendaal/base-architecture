@@ -6,15 +6,16 @@ public static class DependencyConfiguration
     {
         services.AddMediatR(config =>
         {
-            config.RegisterServicesFromAssembly(typeof(DependencyConfiguration).Assembly);
+            config.RegisterServicesFromAssembly(typeof(GetPokémonQuery).Assembly);
             config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(GenericExceptionBehavior<,>));
             config.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidatedRequestBehavior<,>));
         });
 
         services.AddPokeGateway();
+        services.AddPokeDb();
 
         services
-            .AddValidatorsFromAssemblyContaining<GetPokémonsQuery>();
+            .AddValidatorsFromAssemblyContaining<GetPokémonQuery>();
 
         return services;
     }

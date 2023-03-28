@@ -6,6 +6,6 @@ public class GetPokémonRequestModelValidator : AbstractValidator<GetPokémonReq
 {
     public GetPokémonRequestModelValidator()
     {
-        RuleFor(m => m.Name).NotEmpty();
+        RuleFor(m => m.Name).NotEmpty().MinimumLength(2);
     }
 }

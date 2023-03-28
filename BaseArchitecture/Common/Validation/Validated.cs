@@ -37,6 +37,9 @@ public class Validated<T> : IValidated
     public T Value
         => (IsValid ? _value : default) ?? throw new ValidationException(Errors);
 
+    public T? InvalidValue
+        => IsValid ? default : _value;
+
     public bool IsValid => _validation.IsValid;
 
     public IEnumerable<ValidationError> Errors

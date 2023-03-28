@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Gateways.Poke.Models;
-
-namespace API.Controllers;
+﻿namespace API.Controllers;
 
 public class PokémonController : Controller
 {
@@ -13,29 +10,20 @@ public class PokémonController : Controller
         _mediator = mediator;
     }
 
-    [HttpGet("/type")]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByQueryAsync(
-        [FromQuery] Validated<GetPokémonsRequestModel> request)
+    [HttpGet("/pokemon/{name}")]
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetAsync(
+        [FromRoute] Validated<GetPokémonRequestModel> request)
     {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
+        var result = await _mediator.Send(new GetPokémonQuery(request.Value.Name));
 
         if (!result.IsSuccess)
         {
             return result.GetDefaultResult();
         }
 
-        return Ok(Map(result.Value));
-    }
-
-    [HttpPost("/type")]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListByBodyAsync(
-        [FromBody] Validated<GetPokémonsRequestModel> request)
-    {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
-
-        if (!result.IsSuccess)
+        if (result.Value == null)
         {
-            return result.GetDefaultResult();
+            return NotFound();
         }
 
         return Ok(Map(result.Value));
@@ -48,23 +36,9 @@ public class PokémonController : Controller
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("/type/danger")]
+    [HttpGet("/pokemon/danger/{name}")]
     [AllowInvalidModel]
-    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetListDangerouslyAsync(
-        [FromBody] Validated<GetPokémonsRequestModel> request)
-    {
-        var result = await _mediator.Send(new GetPokémonsQuery(request.Value.Type));
-
-        if (!result.IsSuccess)
-        {
-            return result.GetDefaultResult();
-        }
-
-        return Ok(Map(result.Value));
-    }
-
-    [HttpGet("/pokemon/{name}")]
-    public async Task<ActionResult<IReadOnlyList<PokémonDetailsResponseModel>>> GetAsync(
+    public async Task<ActionResult<IReadOnlyList<PokémonResponseModel>>> GetDangerouslyAsync(
         [FromRoute] Validated<GetPokémonRequestModel> request)
     {
         var result = await _mediator.Send(new GetPokémonQuery(request.Value.Name));
@@ -83,7 +57,7 @@ public class PokémonController : Controller
     }
 
     [HttpPost("/pokemon/search")]
-    public async Task<ActionResult<IReadOnlyList<PokémonDetailsResponseModel>>> SearchAsync(
+    public async Task<ActionResult<IReadOnlyList<PokémonSearchResponseModel>>> SearchAsync(
         [FromBody] Validated<SearchPokémonRequestModel> request)
     {
         var result = await _mediator.Send(new SearchPokémonQuery(request.Value.Name, request.Value.Height, request.Value.Weight));
@@ -93,20 +67,31 @@ public class PokémonController : Controller
             return result.GetDefaultResult();
         }
 
-        return Ok(Map(result.Value));
+        return Ok(MapSearch(result.Value));
     }
 
-    private IReadOnlyList<PokémonResponseModel>? Map(IReadOnlyList<Pokémon>? pokémons)
-        => pokémons?.Select(x => Map(x)).ToList();
+    [HttpPost("/pokemon/like")]
+    public async Task<ActionResult> GetAsync(
+        [FromQuery] Validated<LikePokémonRequestModel> request)
+    {
+        var result = await _mediator.Send(new LikePokémonCommand(request.Value.Id));
 
-    private IReadOnlyList<PokémonDetailsResponseModel>? Map(IReadOnlyList<PokémonDetails>? pokémons)
-        => pokémons?.Select(x => Map(x)).ToList();
+        if (!result.IsSuccess)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
 
-    [return: NotNullIfNotNull("pokémon")]
-    private PokémonResponseModel? Map(Pokémon? pokémon)
-        => pokémon == null ? null : new(pokémon.Id, pokémon.Name);
+        return NoContent();
+    }
 
-    [return: NotNullIfNotNull("pokémon")]
-    private PokémonDetailsResponseModel? Map(PokémonDetails? pokémon)
+    private static IReadOnlyList<PokémonSearchResponseModel>? MapSearch(IReadOnlyList<Pokémon>? pokémons)
+        => pokémons?.Select(x => MapSearch(x)).ToList();
+
+    [return: NotNullIfNotNull(nameof(pokémon))]
+    private static PokémonResponseModel? Map(Pokémon? pokémon)
+        => pokémon == null ? null : new(pokémon.Id, pokémon.Name, pokémon.Weight, pokémon.Height, pokémon.NrOfLikes);
+
+    [return: NotNullIfNotNull(nameof(pokémon))]
+    private static PokémonSearchResponseModel? MapSearch(Pokémon? pokémon)
         => pokémon == null ? null : new(pokémon.Id, pokémon.Name, pokémon.Weight, pokémon.Height);
 }

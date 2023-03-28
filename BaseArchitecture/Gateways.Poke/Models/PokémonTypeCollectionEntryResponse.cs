@@ -1,4 +1,4 @@
 ﻿namespace Gateways.Poke.Models;
 
-internal record PokémonTypeCollectionEntryResponse(
+public record PokémonTypeCollectionEntryResponse(
     [property: JsonPropertyName("pokemon")] PokémonResponse Pokémon);

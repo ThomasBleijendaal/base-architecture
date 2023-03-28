@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Gateways.Poke\Gateways.Poke.csproj" />
+    <ProjectReference Include="..\Infrastructure.PokeDb\Infrastructure.PokeDb.csproj" />
   </ItemGroup>
 
 </Project>

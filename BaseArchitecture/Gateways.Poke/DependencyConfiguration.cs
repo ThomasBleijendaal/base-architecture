@@ -64,8 +64,8 @@ public static class DependencyConfiguration
             .AddPolicyHandler(retryPolicy)
             .AddPolicyHandler(timeoutPolicy)
             .AddPolicyHandler(breakerPolicy)
-            .AddHttpMessageHandler<PokeGatewayMessageHandler>();
-        // .AddPolicyHandler(monkeyPolicies);
+            .AddHttpMessageHandler<PokeGatewayMessageHandler>()
+            .AddPolicyHandler(monkeyPolicies);
 
         return services;
     }

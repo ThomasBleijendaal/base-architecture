@@ -2,7 +2,8 @@
 
 public interface IPokeGateway
 {
-    Task<Result<PokémonDetails?>> GetPokémonAsync(string name);
-    Task<Result<IReadOnlyList<Pokémon>?>> GetPokémonsAsync();
-    Task<Result<IReadOnlyList<Pokémon>?>> GetPokémonsAsync(int type);
+    Task<Response<PokémonDetailsResponse, ErrorResponse>> GetPokémonAsync(int name);
+    Task<Response<PokémonDetailsResponse, ErrorResponse>> GetPokémonAsync(string name);
+    Task<Response<PokémonCollectionResponse>> GetPokémonsAsync();
+    Task<Response<PokémonTypeCollectionResponse>> GetPokémonsAsync(int type);
 }

@@ -1,3 +1,3 @@
 ﻿namespace Gateways.Poke.Models;
 
-internal record ErrorResponse(int Code, string Message);
+public record ErrorResponse(int Code, string Message);

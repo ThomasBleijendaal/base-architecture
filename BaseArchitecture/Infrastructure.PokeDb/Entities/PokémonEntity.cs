@@ -6,23 +6,16 @@ internal class PokémonEntity : IRedisEntity<PokémonEntity>
 {
     public int Id { get; set; }
     public string? Name { get; set; }
-
-    public RedisKey GetRedisKey()
-    {
-        var id = Id > 0 ? Id : Name?.GetHashCode() ?? GetHashCode();
-
-        Id = id;
-
-        return new RedisKey(id.ToString());
-    }
+    public int Weight { get; set; }
+    public int Height { get; set; }
+    public int NrOfLikes { get; set; }
 
     public RedisValue GetRedisValue()
-    {
-        return new RedisValue(JsonSerializer.Serialize(this));
-    }
+        => new(JsonSerializer.Serialize(this));
 
-    public PokémonEntity? GetEntity(RedisValue redisValue)
-    {
-        return JsonSerializer.Deserialize<PokémonEntity>(redisValue.ToString());
-    }
+    public IEnumerable<string> GetTags()
+        => string.IsNullOrWhiteSpace(Name) ? Array.Empty<string>() : new[] { Name };
+
+    public static PokémonEntity? GetEntity(RedisValue redisValue)
+        => JsonSerializer.Deserialize<PokémonEntity>(redisValue.ToString());
 }

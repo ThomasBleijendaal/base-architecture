@@ -1,6 +1,6 @@
 ﻿namespace Services.Handlers;
 
-internal class SearchPokémonQueryHandler : IRequestHandler<SearchPokémonQuery, Result<IReadOnlyList<PokémonDetails>>>
+internal class SearchPokémonQueryHandler : IRequestHandler<SearchPokémonQuery, Result<IReadOnlyList<Pokémon>>>
 {
     private readonly IPokeGateway _pokeGateway;
 
@@ -10,44 +10,58 @@ internal class SearchPokémonQueryHandler : IRequestHandler<SearchPokémonQuery,
         _pokeGateway = pokeGateway;
     }
 
-    public async Task<Result<IReadOnlyList<PokémonDetails>>> Handle(SearchPokémonQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<Pokémon>>> Handle(SearchPokémonQuery request, CancellationToken cancellationToken)
     {
-        var result = await _pokeGateway.GetPokémonsAsync();
-
-        if (!result.IsSuccess)
+        try
         {
-            return Result.TransientError<IReadOnlyList<PokémonDetails>>(Errors.FailedToGetPokémon);
-        }
+            var response = await _pokeGateway.GetPokémonsAsync();
 
-        var filteredResults = result.Value
-            ?.Where(x => x.Name.Contains(request.Name ?? "", StringComparison.InvariantCultureIgnoreCase))
-            .ToArray()
-            ?? Array.Empty<Pokémon>();
-
-        var enrichedResults = (await Task.WhenAll(filteredResults
-            .Select(async x =>
+            if (!response.Success)
             {
-                var result = await _pokeGateway.GetPokémonAsync(x.Name);
+                return response.GetGenericGatewayResult<IReadOnlyList<Pokémon>>();
+            }
 
-                if (!result.IsSuccess)
+            if (response.SuccessValue == null)
+            {
+                return Result.Success<IReadOnlyList<Pokémon>>(Array.Empty<Pokémon>());
+            }
+
+            var filteredResults = response.SuccessValue.Pokémons
+                ?.Where(x => x.Name.Contains(request.Name ?? "", StringComparison.InvariantCultureIgnoreCase))
+                .ToArray()
+                ?? Array.Empty<PokémonResponse>();
+
+            var enrichedResults = (await Task.WhenAll(filteredResults
+                .Select(async x =>
                 {
-                    return null;
-                }
+                    var result = await _pokeGateway.GetPokémonAsync(x.Name);
 
-                return result.Value;
-            })))
-            .OfType<PokémonDetails>();
+                    if (!result.Success || result.SuccessValue == null)
+                    {
+                        return default;
+                    }
 
-        if (request.Height.HasValue)
-        {
-            enrichedResults = enrichedResults.Where(x => x.Height == request.Height.Value);
+                    return result.SuccessValue;
+                })))
+                .OfType<PokémonDetailsResponse>();
+
+            if (request.Height.HasValue)
+            {
+                enrichedResults = enrichedResults.Where(x => x.Height == request.Height.Value);
+            }
+
+            if (request.Weight.HasValue)
+            {
+                enrichedResults = enrichedResults.Where(x => x.Weight == request.Weight.Value);
+            }
+
+            return Result.Success<IReadOnlyList<Pokémon>>(enrichedResults
+                .Select(x => new Pokémon(x.Id, x.Name, x.Weight, x.Height, 0))
+                .ToArray());
         }
-
-        if (request.Weight.HasValue)
+        catch
         {
-            enrichedResults = enrichedResults.Where(x => x.Weight == request.Weight.Value);
+            return Result.ExecutionError<IReadOnlyList<Pokémon>>(Errors.FailedToGetPokémon);
         }
-
-        return Result.Success<IReadOnlyList<PokémonDetails>>(enrichedResults.ToArray());
     }
 }

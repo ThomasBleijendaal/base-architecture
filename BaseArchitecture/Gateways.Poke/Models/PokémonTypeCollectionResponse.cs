@@ -1,5 +1,5 @@
 ﻿namespace Gateways.Poke.Models;
 
-internal record PokémonTypeCollectionResponse(
+public record PokémonTypeCollectionResponse(
     int Id,
     [property: JsonPropertyName("pokemon")] IReadOnlyList<PokémonTypeCollectionEntryResponse> Pokémons);
