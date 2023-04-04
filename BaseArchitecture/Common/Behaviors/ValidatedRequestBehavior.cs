@@ -20,7 +20,12 @@ public class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<T
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity("ValidateRequest");
+
         var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+
+        activity?.AddTag("valid", validationResult.IsValid);
+
         if (validationResult.IsValid)
         {
             return await next.Invoke();
@@ -30,7 +35,7 @@ public class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<T
 
         var returnType = typeof(TResponse).GetGenericArguments();
 
-        var method = typeof(Result).GetMethod(nameof(Result.ValidationError))?.MakeGenericMethod(returnType);
+        var method = typeof(Result).GetMethods().FirstOrDefault(x => x.IsGenericMethod && x.Name == nameof(Result.ValidationError))?.MakeGenericMethod(returnType);
 
         TResponse? response;
 
@@ -42,6 +47,8 @@ public class ValidatedRequestBehavior<TRequest, TResponse> : IPipelineBehavior<T
         {
             response = null;
         }
+
+        activity?.AddTag("response", response);
 
         return response ?? throw new ValidationException(result.ValidationErrors ?? Enumerable.Empty<ValidationError>());
     }

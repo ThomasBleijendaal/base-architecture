@@ -1,4 +1,6 @@
-﻿namespace Common;
+﻿using OpenTelemetry.Trace;
+
+namespace Common;
 
 public static class DependencyConfiguration
 {
@@ -13,6 +15,10 @@ public static class DependencyConfiguration
             options.Configuration = "localhost";
             options.InstanceName = "SampleInstance";
         });
+
+        services.AddOpenTelemetry()
+            .WithTracing(traceProviderBuilder => traceProviderBuilder
+                .AddHttpClientInstrumentation());
 
         return services;
     }

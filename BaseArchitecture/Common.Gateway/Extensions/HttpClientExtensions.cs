@@ -91,6 +91,8 @@ public static class HttpClientExtensions
             requestMessage.Content = new StreamContent(request.Content.ToStream());
         }
 
-        return await httpClient.SendAsync(requestMessage);
+        var response = await httpClient.SendAsync(requestMessage);
+
+        return response;
     }
 }

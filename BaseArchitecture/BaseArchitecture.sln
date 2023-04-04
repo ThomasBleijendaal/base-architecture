@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common.Gateway", "Common.Ga
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{370DDC46-71FC-479D-83AF-F2CE3023F817}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.PokeDb", "Infrastructure.PokeDb\Infrastructure.PokeDb.csproj", "{6C8A1F52-7B52-4082-BE12-451DAD911691}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.PokeDb", "Infrastructure.PokeDb\Infrastructure.PokeDb.csproj", "{6C8A1F52-7B52-4082-BE12-451DAD911691}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

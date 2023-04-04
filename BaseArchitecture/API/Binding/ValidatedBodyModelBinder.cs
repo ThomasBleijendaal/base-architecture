@@ -1,4 +1,6 @@
-﻿namespace API.Binding;
+﻿using Common;
+
+namespace API.Binding;
 
 public class ValidatedBodyModelBinder<T> : ValidatedModelBinderBase<T>, IModelBinder
 {
@@ -10,7 +12,12 @@ public class ValidatedBodyModelBinder<T> : ValidatedModelBinderBase<T>, IModelBi
 
     public async Task BindModelAsync(ModelBindingContext bindingContext)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity("BindBody");
+
         var result = await ParseAndValidateModelAsync(bindingContext);
+
+        activity?.AddTag("valid", result.IsValid);
+
         bindingContext.Result = ModelBindingResult.Success(result);
     }
 

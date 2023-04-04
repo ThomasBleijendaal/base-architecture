@@ -1,9 +1,13 @@
-﻿namespace API.Filters;
+﻿using Common;
+
+namespace API.Filters;
 
 public class ValidatedContentFilter : IActionFilter
 {
     public void OnActionExecuting(ActionExecutingContext context)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity("ValidatedActionExecuting");
+
         if (context.ActionDescriptor is ControllerActionDescriptor controllerAction &&
             controllerAction.MethodInfo.GetCustomAttribute<AllowInvalidModelAttribute>() is not null)
         {
@@ -25,6 +29,8 @@ public class ValidatedContentFilter : IActionFilter
     {
         if (context.Exception is ValidationException validationException)
         {
+            using var activity = DiagnosticsConfig.ActivitySource.StartActivity("ValidationExceptionHandling");
+
             context.Exception = null;
             context.Result = validationException.ValidationErrors.GetDefaultResult();
         }
